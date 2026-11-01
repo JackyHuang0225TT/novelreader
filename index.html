@@ -50,6 +50,8 @@ svg { display: block; }
 }
 .lib-head { display: flex; align-items: flex-end; justify-content: space-between; padding: 16px 16px 4px 20px; }
 .lib-head h1 { margin: 0; font-size: 34px; font-weight: 700; letter-spacing: 0.02em; line-height: 1.2; }
+.head-btns { display: flex; gap: 2px; }
+.actions .grp button .ck { display: inline-block; vertical-align: -3px; margin-left: 6px; }
 .lib-count { padding: 0 20px; font-size: 13px; color: var(--ui-sub); min-height: 18px; }
 .icon-btn {
   width: 44px; height: 44px; border-radius: 22px; display: grid; place-items: center;
@@ -299,10 +301,15 @@ body:not(.dark) .dialog { background: rgba(242, 242, 242, 0.94); }
   </div>
   <header class="lib-head">
     <h1>書架</h1>
+    <div class="head-btns">
+    <button id="sortBtn" class="icon-btn" aria-label="排序">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M3.5 7.5L7 4l3.5 3.5M17 20V4M13.5 16.5L17 20l3.5-3.5"/></svg>
+    </button>
     <label class="icon-btn" aria-label="匯入 TXT">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       <input type="file" class="vh txtInput" accept=".txt,text/plain" multiple>
     </label>
+    </div>
   </header>
   <div id="libCount" class="lib-count"></div>
   <section id="shelf" class="shelf"></section>

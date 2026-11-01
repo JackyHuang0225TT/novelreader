@@ -3,7 +3,7 @@
 (function () {
   'use strict';
 
-  const VERSION = '1.0.0';
+  const VERSION = '1.0.1';
   const $ = (id) => document.getElementById(id);
   function el(tag, cls, text) {
     const e = document.createElement(tag);
@@ -680,10 +680,14 @@
       if (head.title) h.appendChild(el('b', null, head.title));
       if (head.message) h.appendChild(document.createTextNode(head.message));
       grp.appendChild(h);
-      if (items.length) h.style.borderBottom = '0.5px solid var(--ui-sep)';
     }
     for (const it of items) {
       const b = el('button', it.danger ? 'danger' : '', it.label);
+      if (it.checked) {
+        const ck = el('span', 'ck');
+        ck.innerHTML = ICONS.check;
+        b.appendChild(ck);
+      }
       b.addEventListener('click', () => { Overlay.close(); setTimeout(it.run, 240); });
       grp.appendChild(b);
     }
@@ -757,13 +761,35 @@
     return s;
   }
 
+  // 排序：最近閱讀、最近加入、書名、閱讀進度
+  let collator = null;
+  try { collator = new Intl.Collator('zh-Hant-TW', { numeric: true, sensitivity: 'base' }); } catch (e) { collator = null; }
+  const byTitle = (a, b) => (collator ? collator.compare(a.title, b.title) : (a.title < b.title ? -1 : a.title > b.title ? 1 : 0));
+  const SORTS = [
+    { id: 'recent', label: '最近閱讀', cmp: (a, b) => lastRead(b) - lastRead(a) },
+    { id: 'added', label: '最近加入', cmp: (a, b) => (b.added || 0) - (a.added || 0) },
+    { id: 'title', label: '書名', cmp: byTitle },
+    { id: 'progress', label: '閱讀進度', cmp: (a, b) => ((b.progress && b.progress.fraction) || 0) - ((a.progress && a.progress.fraction) || 0) || lastRead(b) - lastRead(a) }
+  ];
+  let sortId = store.get('reader.sort') || 'recent';
+  const sortOf = () => SORTS.find((x) => x.id === sortId) || SORTS[0];
+  $('sortBtn').addEventListener('click', () => {
+    actionSheet({ title: '書架排序' }, SORTS.map((x) => ({
+      label: x.label,
+      checked: x.id === sortOf().id,
+      run: () => { sortId = x.id; store.set('reader.sort', x.id); renderShelf(); $('library').scrollTop = 0; }
+    })));
+  });
+
   function renderShelf() {
     const shelf = $('shelf');
     shelf.textContent = '';
-    const list = books.slice().sort((a, b) => lastRead(b) - lastRead(a));
+    const sort = sortOf();
+    const list = books.slice().sort((a, b) => sort.cmp(a, b) || byTitle(a, b));
     $('empty').hidden = list.length > 0;
     shelf.hidden = list.length === 0;
-    $('libCount').textContent = list.length ? list.length + ' 本書' : '';
+    $('sortBtn').hidden = list.length < 2;
+    $('libCount').textContent = list.length ? list.length + ' 本書' + (list.length > 1 ? ' · 依' + sort.label + '排序' : '') : '';
     for (const b of list) shelf.appendChild(bookCell(b));
   }
 

@@ -1,6 +1,6 @@
 /* 離線快取：第一次打開時把整個 App 存到手機上，之後不用網路。
  * 改版時把 CACHE 的版本號改掉，手機下次連網打開就會更新。 */
-const CACHE = 'reader-1.0.0';
+const CACHE = 'reader-1.0.1';
 const FILES = [
   './',
   'index.html',
